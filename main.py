@@ -21,6 +21,7 @@ import random
 import base64
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.utils import platform
+from kivy.uix.image import Image
 from kivy.core.window import Window
 from kivy.graphics import Color, Rectangle
 from kivy.core.window import Window
@@ -529,8 +530,10 @@ class homescreen(Screen):
         super(homescreen, self).__init__(**kwargs)
 
         # Define layout:
-        self.layout = GridLayout(cols=1, spacing=0, size=self.size, pos=self.pos)
+        self.layout = GridLayout(cols=1, spacing=0, size_hint_y=None, pos=self.pos)
         self.layout.bind(minimum_height=self.layout.setter('height'))
+        self.image = Image(source="icon 1.png",size_hint_y=None)
+        self.layout.add_widget(self.image)
         self.greeting = MultiLineLabel(background_normal="", background_color=(0.129, 0.129, 0.129,1),text="\n\nWelkom!\n\n")
         self.layout.add_widget(self.greeting)
 
@@ -550,8 +553,12 @@ class homescreen(Screen):
         self.acceptbutton.bind(on_release=self.login)
         self.layout.add_widget(self.acceptbutton)
 
-        # Draw all widgets
-        self.add_widget(self.layout)
+        # Draw scrollview:
+        self.layout.bind(minimum_height=self.layout.setter('height'))
+        root = ScrollView(do_scroll_x=False)
+        root.scroll_timeout = EncryptionApp.scrolltimeout
+        root.add_widget(self.layout)
+        self.add_widget(root)
 
     def login(self, obj):
         EncryptionApp.usernameBox.focus = False
