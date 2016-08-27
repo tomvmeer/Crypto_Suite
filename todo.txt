@@ -7,5 +7,6 @@ Todo list:
 - [ ] Connectclass, remove slashes and spaces from all traffic going to server to avoid crashes
 - [ ] Make choosing user to send message to more clear
 - [ ] Downgrade RSA encryption for more speed on slower phones
-
+- [ ] Dynamicly output text in cmd to logtext
+- [ ] Add debugmode where all the user's actions are logged
 
