@@ -5,4 +5,7 @@ Todo list:
 - [ ] Search for UI bugs
 - [ ] Automaticly adding new keys after X ammount of msgs
 - [ ] Connectclass, remove slashes and spaces from all traffic going to server to avoid crashes
+- [ ] Make choosing user to send message to more clear
+- [ ] Downgrade RSA encryption for more speed on slower phones
+
 
