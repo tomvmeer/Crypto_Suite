@@ -7,26 +7,22 @@ CryptoSuite Class. Does some file handling with keys and saves private keys to d
 __author__ = "Tom van Meer"
 __version__ = "2.1."
 
-# Importing Kivy classes and CryptoSuite class
+# Importing Kivy classes and CryptoSuite class, also importing all modules:
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 import CryptoSuite
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.textinput import TextInput
-from kivy.uix.label import Label
-from kivy.core.clipboard import Clipboard
 import os
-import AESClass
 import ConnectClass
-import urllib2
 import hashlib
 import random
 import base64
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.utils import platform
 from kivy.core.window import Window
-
+from kivy.graphics import Color, Rectangle
 
 
 # Class for custom self-scaling button:
@@ -59,10 +55,10 @@ class EncryptionApp(App):
     touser = ""
     subject = ""
     offline = False
-    tab = False
     passwordBox = TextInput(password=True, multiline=False, size_hint_y=None, text="")
-    passwordBox2 = TextInput(password=True, multiline=False, size_hint_y=None, text="")
     usernameBox = TextInput(multiline=False, size_hint_y=None, text="")
+    scrolltimeout = 50
+    admin = True
 
     # Method for building the app
     def build(self):
@@ -74,6 +70,16 @@ class EncryptionApp(App):
         self.sm.add_widget(touser(name="touserscreen"))
         self.sm.add_widget(encryption(name="encryptionscreen"))
         self.sm.add_widget(decryption(name="decryptionscreen"))
+
+        # Try for file-rights:
+        try:
+            f = open("test.txt","w")
+            f.write("test")
+            f.close()
+            os.listdir("/")
+            os.remove("test.txt")
+        except IOError:
+            self.admin = False
         return self.sm
 
     #Method for esc/back button
@@ -141,7 +147,7 @@ class mainmenu(Screen):
         # Draw scrollview:
         self.layout.bind(minimum_height=self.layout.setter('height'))
         root = ScrollView(do_scroll_x=False)
-        root.scroll_timeout = 52
+        root.scroll_timeout = EncryptionApp.scrolltimeout
         root.add_widget(self.layout)
         self.add_widget(root)
 
@@ -200,7 +206,7 @@ class decryption(Screen):
         # Draw scrollview:
         self.layout.bind(minimum_height=self.layout.setter('height'))
         root = ScrollView(do_scroll_x=False)
-        root.scroll_timeout = 52
+        root.scroll_timeout = EncryptionApp.scrolltimeout
         root.add_widget(self.layout)
         self.add_widget(root)
 
@@ -290,7 +296,7 @@ class readscreen(Screen):
         # Draw scrollview:
         self.layout.bind(minimum_height=self.layout.setter('height'))
         root = ScrollView(do_scroll_x=False)
-        root.scroll_timeout = 52
+        root.scroll_timeout = EncryptionApp.scrolltimeout
         root.add_widget(self.layout)
         self.add_widget(root)
 
@@ -341,7 +347,7 @@ class encryption(Screen):
         # Draw scrollview:
         self.layout.bind(minimum_height=self.layout.setter('height'))
         root = ScrollView(do_scroll_x=False)
-        root.scroll_timeout = 52
+        root.scroll_timeout = EncryptionApp.scrolltimeout
         root.add_widget(self.layout)
         self.add_widget(root)
 
@@ -449,7 +455,7 @@ class touser(Screen):
         # Draw scrollview:
         self.layout.bind(minimum_height=self.layout.setter('height'))
         root = ScrollView(do_scroll_x=False)
-        root.scroll_timeout = 52
+        root.scroll_timeout = EncryptionApp.scrolltimeout
         root.add_widget(self.layout)
         self.add_widget(root)
 
@@ -495,6 +501,12 @@ class homescreen(Screen):
     def __init__(self, **kwargs):
         super(homescreen, self).__init__(**kwargs)
 
+        # Drawing the background:
+        with self.canvas.before:
+            Color(0,102,255,0.3)
+            self.rect = Rectangle(pos=self.pos, size=self.size)
+        self.bind(size=self.update_rect)
+
         # Define layout:
         self.layout = GridLayout(cols=1, spacing=0, size=self.size, pos=self.pos)
         self.layout.bind(minimum_height=self.layout.setter('height'))
@@ -515,6 +527,10 @@ class homescreen(Screen):
         # Draw all widgets
         self.add_widget(self.layout)
 
+    def update_rect(self, instance, value):
+        self.rect.pos = self.pos
+        self.rect.size = self.size
+
     def login(self, obj):
         if EncryptionApp.offline == True:
             try:
@@ -531,6 +547,14 @@ class homescreen(Screen):
                     self.layout.remove_widget(self.error1)
                 except:
                     None
+        elif EncryptionApp.admin == False:
+            try:
+                self.layout.remove_widget(self.error2)
+            except:
+                None
+            self.error2 = (MultiLineLabel(text="\n\nDe app heeft niet genoeg rechten, raadpleeg de handleiding!\n\n", background_normal="",
+                                         background_color=(0, 102, 255, 0.3)))
+            self.layout.add_widget(self.error2)
         else:
             if EncryptionApp.passwordBox.text == None or EncryptionApp.passwordBox.text == "" or EncryptionApp.usernameBox.text == None or EncryptionApp.usernameBox.text == "":
                 return False
