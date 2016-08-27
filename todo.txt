@@ -1,4 +1,4 @@
-###Todo list:
+Todo list:
 
 - [ ] Add option to remove a message in readscreen
 - [ ] Fix UI colors more
