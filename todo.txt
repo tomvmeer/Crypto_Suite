@@ -10,4 +10,5 @@ Todo list:
 - [ ] Dynamicly output text in cmd to logtext
 - [ ] Add debugmode where all the user's actions are logged
 - [ ] Fix logo, on all screens!
-
+- [ ] Remove whitespaces in usernames
+- [ ] Add register form
