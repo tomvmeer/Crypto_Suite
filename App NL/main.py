@@ -5,7 +5,7 @@ CryptoSuite Class. Does some file handling with keys and saves private keys to d
 """
 
 __author__ = "Tom van Meer"
-__version__ = "3.1"
+__version__ = "3.1.1"
 
 # Importing Kivy classes and CryptoSuite class, also importing all modules:
 from kivy.app import App
@@ -36,6 +36,11 @@ class MultiLineLabel(Button):
         self.size_hint_y = None # Not needed here
 
     def on_size(self, widget, size):
+        if platform() == 'android':
+            x,y = self.size
+            self.padding_x = x / 10
+        else:
+            self.padding_x = 20
         self.text_size = size[0], None
         self.texture_update()
         if self.size_hint_y == None and self.size_hint_x != None:
@@ -102,8 +107,9 @@ class EncryptionApp(App):
                 self.passwordBox.text = ""
                 self.usernameBox.text = ""
                 self.sm.current = "loginscreen"
-            if self.sm.current == "decryptionscreen" or self.sm.current == "touserscreen" or \
-                            self.sm.current == "sendscreen":
+            if self.sm.current == "decryptionscreen" or self.sm.current == "touserscreen":
+                self.sm.current = "mainmenu"
+            if self.sm.current == "sendscreen":
                 self.sm.current = "mainmenu"
             screenlist = (self.sm.screen_names)
             screenlist.remove('loginscreen')
@@ -129,22 +135,22 @@ class loginscreen(Screen):
         self.image = Image(source="icon 2.png", size_hint_y=None)
         self.layout.add_widget(self.image)
         self.greeting = MultiLineLabel(background_normal="", background_color=(0.129, 0.129, 0.129, 1),
-                                       text="\n\nWelkom!\n\n")
+                                       text="\n\nWelkom!\n\n",halign="center")
         self.layout.add_widget(self.greeting)
 
         # Login forum:
-        self.layout.add_widget(MultiLineLabel(text='\n\nGebruikersnaam:', size_hint_y=None,
-                                              background_color=(255, 255, 255, 1), background_normal="",
+        self.layout.add_widget(MultiLineLabel(text='\n\nGebruikersnaam:\n', size_hint_y=None,
+                                              background_color=(1, 1, 1, 1), background_normal="",
                                               color=(0, 0, 0, 1)))
         self.layout.add_widget(EncryptionApp.usernameBox)
-        self.layout.add_widget(MultiLineLabel(text='\n\nWachtwoord:', size_hint_y=None,
-                                              background_color=(255, 255, 255, 1),
+        self.layout.add_widget(MultiLineLabel(text='\n\nWachtwoord:\n', size_hint_y=None,
+                                              background_color=(1, 1, 1, 1),
                                               background_normal="", color=(0, 0, 0, 1)))
         self.layout.add_widget(EncryptionApp.passwordBox)
 
         # Accept button:
         self.acceptbutton = (MultiLineLabel(background_normal="", background_color=(0.4, 0.416, 0.42, 1),
-                                            text='\n\n[Inloggen]\n\n'))
+                                            text='\n\n[Inloggen]\n\n',halign="center"))
         self.acceptbutton.bind(on_release=self.login)
         self.layout.add_widget(self.acceptbutton)
 
@@ -167,7 +173,7 @@ class loginscreen(Screen):
                 None
             self.error2 = (MultiLineLabel(text="\n\n---De app heeft niet genoeg rechten, "
                                                "raadpleeg de handleiding!---\n\n",
-                                          background_normal="", background_color=(255, 0, 0, 0.4)))
+                                          background_normal="", background_color=(1, 0, 0, 0.4)))
             self.layout.add_widget(self.error2)
             return
 
@@ -177,7 +183,7 @@ class loginscreen(Screen):
             except:
                 None
             self.error1 = (MultiLineLabel(text="\n\n---Server offline, probeer later opnieuw.---\n\n",
-                                          background_normal="", background_color=(255, 0, 0, 0.4)))
+                                          background_normal="", background_color=(1, 0, 0, 0.4)))
             self.layout.add_widget(self.error1)
             CC = ConnectClass.Connections()
             if CC.getuserlist() != False:
@@ -212,7 +218,7 @@ class loginscreen(Screen):
                         None
                     self.error = (
                     MultiLineLabel(text="\n\n---Fouten, probeer opnieuw.---\n\n", background_normal="",
-                                   background_color=(255, 0, 0, 0.4)))
+                                   background_color=(1, 0, 0, 0.4)))
                     self.layout.add_widget(self.error)
 
 
@@ -352,7 +358,7 @@ class decryption(Screen):
             amount = (len(new))
             self.msglist = []
             self.msglabel1 = MultiLineLabel(text='\n\nBerichten:\n\n', size_hint_y=None,
-                                            background_color=(255, 255, 255, 1), background_normal="",
+                                            background_color=(1, 1, 1, 1), background_normal="",
                                             color=(0, 0, 0, 1))
             self.layout.add_widget(self.msglabel1)
             for i in range(0,amount):
@@ -468,8 +474,8 @@ class sendscreen(Screen):
         self.add_widget(root)
 
     def refresh(self,obj):
-        self.subject = ""
-        self.message = ""
+        self.subject.text = ""
+        self.message.text = ""
         try:
             self.layout.remove_widget(self.error)
         except:None
@@ -478,6 +484,8 @@ class sendscreen(Screen):
         except:None
 
     def home(self,obj):
+        self.subject = ""
+        self.message = ""
         EncryptionApp.sm.current = "mainmenu"
 
     def listToString(self,list):
@@ -495,7 +503,7 @@ class sendscreen(Screen):
                 self.layout.remove_widget(self.error)
             except: None
             self.error = MultiLineLabel(text="\n\n---Er ging iets fout, probeer het opnieuw!---\n\n",
-                                        background_normal="", background_color=(255, 0, 0, 0.4))
+                                        background_normal="", background_color=(1, 0, 0, 0.4))
             self.layout.add_widget(self.error)
         else:
             try:
@@ -522,7 +530,7 @@ class sendscreen(Screen):
                     except:
                         self.succes = MultiLineLabel(text="\n\n---Er ging iets fout, probeer het opnieuw!---\n\n",
                                                      on_release=self.home,background_normal="",
-                                                     background_color=(255, 0, 0, 0.4))
+                                                     background_color=(1, 0, 0, 0.4))
                         self.layout.add_widget(self.succes)
                     else:
                         if ss == True:
@@ -542,7 +550,7 @@ class sendscreen(Screen):
                     None
                 self.error = MultiLineLabel(text="\n\n---Er ging iets fout, raadpleeg de handleiding over 'rechten'!"
                                                  "---\n\n",
-                                            background_normal="", background_color=(255, 0, 0, 0.4))
+                                            background_normal="", background_color=(1, 0, 0, 0.4))
                 self.layout.add_widget(self.error)
 
 
@@ -573,13 +581,6 @@ class touser(Screen):
         self.refreshbutton.bind(on_release=self.refresh)
         self.layout.add_widget(self.refreshbutton)
 
-        # To user labels:
-        self.touserlabel = MultiLineLabel(text="\n\n Naar wie wilt u een bericht sturen:\n",size_hint_y=None,
-                                          background_normal="", background_color=(255, 255, 255, 1),color=(0, 0, 0, 1))
-        self.layout.add_widget(self.touserlabel)
-        for i in userlist:
-            self.layout.add_widget(MultiLineLabel(text='\n\n Gebruiker: ' + i + '\n\n', on_press=self.nexts, id=i))
-
         # Draw scrollview:
         self.layout.bind(minimum_height=self.layout.setter('height'))
         root = ScrollView(do_scroll_x=False)
@@ -607,6 +608,7 @@ class touser(Screen):
             EncryptionApp.offline = True
         userlist = (str(userlist).replace("'", "")).replace("[", "").replace("]", "").replace(",", "")
         userlist = userlist.split(" ")
+        userlist.remove(str(EncryptionApp.username))
 
         # Refresh:
         self.refreshbutton = MultiLineLabel(text="\n\n[Gebruikers-lijst opnieuw ophalen]\n\n")
@@ -615,10 +617,11 @@ class touser(Screen):
 
         # To user box:
         self.touserlabel = MultiLineLabel(text="\n\n Naar wie wilt u een bericht sturen:\n",size_hint_y=None,
-                                          background_normal="",background_color=(255, 255, 255, 1),color=(0, 0, 0, 1))
+                                          background_normal="",background_color=(1, 1, 1, 1),color=(0, 0, 0, 1))
         self.layout.add_widget(self.touserlabel)
         for i in userlist:
-            self.layout.add_widget(MultiLineLabel(text='\n\n Gebruiker: ' + i + '\n\n', on_press=self.nexts, id=i))
+            self.layout.add_widget(MultiLineLabel(text='\n\n - ' + i + '\n\n', on_press=self.nexts,
+                                                  id=i,background_normal="",background_color=(1, 1, 1, 1),color=(0,0,0,1)))
 
     def home(self,obj):
         EncryptionApp.sm.current = "mainmenu"

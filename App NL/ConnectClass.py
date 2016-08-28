@@ -9,6 +9,7 @@ __version__ = "1.0."
 import urllib2
 import CryptoSuite
 import socket
+RSAkeysize = 896
 
 # Class for connecting and interacting with the server
 class Connections:
@@ -31,7 +32,7 @@ class Connections:
             return False
         elif int(response) == 3:  # user doesnt excist, create new!
             c = CryptoSuite.CryptoSuite(False)
-            id = c.construct(1024, 5, False, password)
+            id = c.construct(RSAkeysize, 5, False, password)
             datalist = []
             with open(("PublicKey " + str(id) + ".dat"), "r") as f:
                 for line in f:
@@ -51,7 +52,7 @@ class Connections:
         response = (urllib2.urlopen(link.replace(" ","._."))).read()
         if response == "3" or response == "1":
             c = CryptoSuite.CryptoSuite(False)
-            id = c.construct(1024, 5, False, "test")
+            id = c.construct(RSAkeysize, 5, False, "test")
             datalist = []
             with open(("PublicKey " + str(id) + ".dat"), "r") as f:
                 for line in f:
