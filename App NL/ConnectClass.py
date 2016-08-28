@@ -8,6 +8,7 @@ __version__ = "1.0."
 
 import urllib2
 import CryptoSuite
+import socket
 
 # Class for connecting and interacting with the server
 class Connections:
@@ -70,6 +71,8 @@ class Connections:
         try:
             response = (urllib2.urlopen(link,timeout=1).read())
         except urllib2.URLError:
+            return False
+        except socket.timeout:
             return False
         else:
             return response

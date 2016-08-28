@@ -67,11 +67,11 @@ class EncryptionApp(App):
         Window.clearcolor = (0, 0.314, 0.42,1)
         self.title = "Crypto Suite V" + str(__version__)
         self.bind(on_start=self.post_build_init)
-        self.sm.add_widget(homescreen(name="homescreen"))
-        self.sm.current = 'homescreen'
+        self.sm.add_widget(loginscreen(name="loginscreen"))
+        self.sm.current = 'loginscreen'
         self.sm.add_widget(mainmenu(name="mainmenu"))
         self.sm.add_widget(touser(name="touserscreen"))
-        self.sm.add_widget(encryption(name="encryptionscreen"))
+        self.sm.add_widget(sendscreen(name="sendscreen"))
         self.sm.add_widget(decryption(name="decryptionscreen"))
 
         # Try for file-rights:
@@ -96,26 +96,124 @@ class EncryptionApp(App):
     # Method for esc/back button
     def my_key_handler(self, window, keycode1, keycode2, text, modifiers):
         if keycode1 in [27, 1001]:
-            if self.sm.current == "homescreen":
+            if self.sm.current == "loginscreen":
                 app.stop()
             if self.sm.current == "mainmenu":
                 self.passwordBox.text = ""
                 self.usernameBox.text = ""
-                self.sm.current = "homescreen"
+                self.sm.current = "loginscreen"
             if self.sm.current == "decryptionscreen" or self.sm.current == "touserscreen" or \
-                            self.sm.current == "encryptionscreen":
+                            self.sm.current == "sendscreen":
                 self.sm.current = "mainmenu"
             screenlist = (self.sm.screen_names)
-            screenlist.remove('homescreen')
+            screenlist.remove('loginscreen')
             screenlist.remove('mainmenu')
             screenlist.remove('touserscreen')
-            screenlist.remove('encryptionscreen')
+            screenlist.remove('sendscreen')
             screenlist.remove('decryptionscreen')
             for i in screenlist:
                 if self.sm.current == str(i):
                     self.sm.current = "decryptionscreen"
             return True
         return False
+
+
+# Class for loginscreen:
+class loginscreen(Screen):
+    def __init__(self, **kwargs):
+        super(loginscreen, self).__init__(**kwargs)
+
+        # Define layout:
+        self.layout = GridLayout(cols=1, spacing=0, size_hint_y=None, pos=self.pos)
+        self.layout.bind(minimum_height=self.layout.setter('height'))
+        self.image = Image(source="icon 2.png", size_hint_y=None)
+        self.layout.add_widget(self.image)
+        self.greeting = MultiLineLabel(background_normal="", background_color=(0.129, 0.129, 0.129, 1),
+                                       text="\n\nWelkom!\n\n")
+        self.layout.add_widget(self.greeting)
+
+        # Login forum:
+        self.layout.add_widget(MultiLineLabel(text='\n\nGebruikersnaam:', size_hint_y=None,
+                                              background_color=(255, 255, 255, 1), background_normal="",
+                                              color=(0, 0, 0, 1)))
+        self.layout.add_widget(EncryptionApp.usernameBox)
+        self.layout.add_widget(MultiLineLabel(text='\n\nWachtwoord:', size_hint_y=None,
+                                              background_color=(255, 255, 255, 1),
+                                              background_normal="", color=(0, 0, 0, 1)))
+        self.layout.add_widget(EncryptionApp.passwordBox)
+
+        # Accept button:
+        self.acceptbutton = (MultiLineLabel(background_normal="", background_color=(0.4, 0.416, 0.42, 1),
+                                            text='\n\n[Inloggen]\n\n'))
+        self.acceptbutton.bind(on_release=self.login)
+        self.layout.add_widget(self.acceptbutton)
+
+        # Draw scrollview:
+        self.layout.bind(minimum_height=self.layout.setter('height'))
+        root = ScrollView(do_scroll_x=False)
+        root.scroll_timeout = EncryptionApp.scrolltimeout
+        root.add_widget(self.layout)
+        self.add_widget(root)
+
+    def login(self, obj):
+        EncryptionApp.usernameBox.focus = False
+        EncryptionApp.passwordBox.focus = False
+
+        # Checking for rights!
+        if EncryptionApp.admin == False:
+            try:
+                self.layout.remove_widget(self.error2)
+            except:
+                None
+            self.error2 = (MultiLineLabel(text="\n\n---De app heeft niet genoeg rechten, "
+                                               "raadpleeg de handleiding!---\n\n",
+                                          background_normal="", background_color=(255, 0, 0, 0.4)))
+            self.layout.add_widget(self.error2)
+            return
+
+        if EncryptionApp.offline == True:
+            try:
+                self.layout.remove_widget(self.error1)
+            except:
+                None
+            self.error1 = (MultiLineLabel(text="\n\n---Server offline, probeer later opnieuw.---\n\n",
+                                          background_normal="", background_color=(255, 0, 0, 0.4)))
+            self.layout.add_widget(self.error1)
+            CC = ConnectClass.Connections()
+            if CC.getuserlist() != False:
+                EncryptionApp.offline = False
+                try:
+                    self.layout.remove_widget(self.error1)
+                except:
+                    None
+        else:
+            if EncryptionApp.passwordBox.text is None or EncryptionApp.passwordBox.text == "" or \
+                            EncryptionApp.usernameBox.text is None or EncryptionApp.usernameBox.text == "":
+                return False
+            else:
+                EncryptionApp.username = str(EncryptionApp.usernameBox.text).replace(" ", "").replace("\t", "")
+                t_sha = hashlib.sha512()
+                t_sha.update(EncryptionApp.passwordBox.text)
+                passw = base64.urlsafe_b64encode(t_sha.digest())
+                C = ConnectClass.Connections()
+                if C.login(str(EncryptionApp.username), str(passw).replace("/", "++")):
+                    try:
+                        self.layout.remove_widget(self.error)
+                    except:
+                        None
+                    EncryptionApp.password = str(passw)
+                    EncryptionApp.usernameBox.text = ""
+                    EncryptionApp.passwordBox.text = ""
+                    EncryptionApp.sm.current = "mainmenu"
+                else:
+                    try:
+                        self.layout.remove_widget(self.error)
+                    except:
+                        None
+                    self.error = (
+                    MultiLineLabel(text="\n\n---Fouten, probeer opnieuw.---\n\n", background_normal="",
+                                   background_color=(255, 0, 0, 0.4)))
+                    self.layout.add_widget(self.error)
 
 
 # Class for mainemenu:
@@ -128,6 +226,8 @@ class mainmenu(Screen):
         self.greeting = MultiLineLabel(background_normal="",background_color=(0.129, 0.129, 0.129,1),
                                        text="\n\n---Hoofdmenu, active gebruiker: %s ---\n\n"% \
                                         str(EncryptionApp.username))
+        self.image = Image(source="icon 2.png",size_hint_y=None)
+        self.layout.add_widget(self.image)
         self.layout.add_widget(self.greeting)
         self.bind(on_enter=self.refresh)
 
@@ -164,7 +264,7 @@ class mainmenu(Screen):
 
     def logouts(self,obj):
         EncryptionApp.passwordBox.text = ""
-        EncryptionApp.sm.current = "homescreen"
+        EncryptionApp.sm.current = "loginscreen"
 
     def encrypts(self,obj):
         EncryptionApp.sm.current = "touserscreen"
@@ -190,13 +290,13 @@ class mainmenu(Screen):
         C.deluser(EncryptionApp.username,EncryptionApp.password)
         EncryptionApp.passwordBox.text = ""
         EncryptionApp.usernameBox.text = ""
-        EncryptionApp.sm.current = "homescreen"
+        EncryptionApp.sm.current = "loginscreen"
 
     def decrypts(self,obj):
         EncryptionApp.sm.current = "decryptionscreen"
 
 
-# Class for reading received messages:
+# Class for selecting received messages:
 class decryption(Screen):
     def __init__(self, **kwargs):
         super(decryption, self).__init__(**kwargs)
@@ -287,7 +387,7 @@ class decryption(Screen):
         return ("--+--".join(list))
 
 
-# Class for reading a message
+# Class for reading selected message:
 class readscreen(Screen):
     def __init__(self, **kwargs):
         super(readscreen, self).__init__(**kwargs)
@@ -323,10 +423,10 @@ class readscreen(Screen):
         return (string.split("--+--"))
 
 
-# Class for encryption screen:
-class encryption(Screen):
+# Class for sending a message:
+class sendscreen(Screen):
     def __init__(self, **kwargs):
-        super(encryption, self).__init__(**kwargs)
+        super(sendscreen, self).__init__(**kwargs)
 
         # Define layout:
         self.layout = GridLayout(cols=1, spacing=0, size_hint_y=None, pos=self.pos)
@@ -446,7 +546,7 @@ class encryption(Screen):
                 self.layout.add_widget(self.error)
 
 
-# Class for encryption screen:
+# Class for selecting the user to send a message to screen:
 class touser(Screen):
     def __init__(self, **kwargs):
         super(touser, self).__init__(**kwargs)
@@ -469,7 +569,7 @@ class touser(Screen):
         userlist = userlist.split(" ")
 
         # Refresh:
-        self.refreshbutton = MultiLineLabel(text="\n\n[Gebruikers ophalen]\n\n")
+        self.refreshbutton = MultiLineLabel(text="\n\n[Gebruikers-lijst opnieuw ophalen]\n\n")
         self.refreshbutton.bind(on_release=self.refresh)
         self.layout.add_widget(self.refreshbutton)
 
@@ -489,7 +589,7 @@ class touser(Screen):
 
     def nexts(self,obj):
         EncryptionApp.touser = str(obj.id)
-        EncryptionApp.sm.current = "encryptionscreen"
+        EncryptionApp.sm.current = "sendscreen"
 
     def refresh(self,obj):
         self.layout.clear_widgets()
@@ -523,98 +623,6 @@ class touser(Screen):
     def home(self,obj):
         EncryptionApp.sm.current = "mainmenu"
 
-
-# Class for homescreen:
-class homescreen(Screen):
-    def __init__(self, **kwargs):
-        super(homescreen, self).__init__(**kwargs)
-
-        # Define layout:
-        self.layout = GridLayout(cols=1, spacing=0, size_hint_y=None, pos=self.pos)
-        self.layout.bind(minimum_height=self.layout.setter('height'))
-        self.image = Image(source="icon 1.png",size_hint_y=None)
-        self.layout.add_widget(self.image)
-        self.greeting = MultiLineLabel(background_normal="", background_color=(0.129, 0.129, 0.129,1),text="\n\nWelkom!\n\n")
-        self.layout.add_widget(self.greeting)
-
-        # Login forum:
-        self.layout.add_widget(MultiLineLabel(text='\n\nGebruikersnaam:', size_hint_y=None,
-                                              background_color=(255, 255, 255, 1),background_normal="",
-                                              color=(0, 0, 0, 1)))
-        self.layout.add_widget(EncryptionApp.usernameBox)
-        self.layout.add_widget(MultiLineLabel(text='\n\nWachtwoord:', size_hint_y=None,
-                                              background_color=(255, 255, 255, 1),
-                                              background_normal="", color=(0, 0, 0, 1)))
-        self.layout.add_widget(EncryptionApp.passwordBox)
-
-        # Accept button:
-        self.acceptbutton = (MultiLineLabel(background_normal="", background_color=(0.4, 0.416, 0.42,1),
-                                            text='\n\n[Inloggen]\n\n'))
-        self.acceptbutton.bind(on_release=self.login)
-        self.layout.add_widget(self.acceptbutton)
-
-        # Draw scrollview:
-        self.layout.bind(minimum_height=self.layout.setter('height'))
-        root = ScrollView(do_scroll_x=False)
-        root.scroll_timeout = EncryptionApp.scrolltimeout
-        root.add_widget(self.layout)
-        self.add_widget(root)
-
-    def login(self, obj):
-        EncryptionApp.usernameBox.focus = False
-        EncryptionApp.passwordBox.focus = False
-
-        # Checking for rights!
-        if EncryptionApp.admin == False:
-            try:
-                self.layout.remove_widget(self.error2)
-            except:
-                None
-            self.error2 = (MultiLineLabel(text="\n\n---De app heeft niet genoeg rechten, "
-                                               "raadpleeg de handleiding!---\n\n",
-                           background_normal="",background_color=(255, 0, 0, 0.4)))
-            self.layout.add_widget(self.error2)
-            return
-        if EncryptionApp.offline == True:
-            try:
-                self.layout.remove_widget(self.error1)
-            except:
-                None
-            self.error1 = (MultiLineLabel(text="\n\n---Server offline, probeer later opnieuw.---\n\n",
-                                          background_normal="", background_color=(255, 0, 0, 0.4)))
-            self.layout.add_widget(self.error1)
-            CC = ConnectClass.Connections()
-            if CC.getuserlist() != False:
-                EncryptionApp.offline = False
-                try:
-                    self.layout.remove_widget(self.error1)
-                except:
-                    None
-        else:
-            if EncryptionApp.passwordBox.text is None or EncryptionApp.passwordBox.text == "" or \
-                            EncryptionApp.usernameBox.text is None or EncryptionApp.usernameBox.text == "":
-                return False
-            else:
-                EncryptionApp.username = str(EncryptionApp.usernameBox.text)
-                t_sha = hashlib.sha512()
-                t_sha.update(EncryptionApp.passwordBox.text)
-                passw = base64.urlsafe_b64encode(t_sha.digest())
-                C = ConnectClass.Connections()
-                if C.login(str(EncryptionApp.username), str(passw).replace("/","++")):
-                    try:
-                        self.layout.remove_widget(self.error)
-                    except: None
-                    EncryptionApp.password = str(passw)
-                    EncryptionApp.usernameBox.text = ""
-                    EncryptionApp.passwordBox.text = ""
-                    EncryptionApp.sm.current = "mainmenu"
-                else:
-                    try:
-                        self.layout.remove_widget(self.error)
-                    except: None
-                    self.error = (MultiLineLabel(text="\n\n---Fouten, probeer opnieuw.---\n\n", background_normal="",
-                                                 background_color=(255, 0, 0, 0.4)))
-                    self.layout.add_widget(self.error)
 
 # Main loop
 if __name__ == '__main__':
