@@ -609,7 +609,7 @@ class touser(Screen):
         userlist = userlist.split(" ")
 
         # Refresh:
-        self.refreshbutton = MultiLineLabel(text="\n\n[Gebruikers ophalen]\n\n")
+        self.refreshbutton = MultiLineLabel(text="\n\n[Gebruikers-lijst opnieuw ophalen]\n\n")
         self.refreshbutton.bind(on_release=self.refresh)
         self.layout.add_widget(self.refreshbutton)
 
