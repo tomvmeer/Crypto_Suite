@@ -9,6 +9,7 @@ Todo list:
 - [ ] Downgrade RSA encryption for more speed on slower phones
 - [ ] Dynamicly output text in cmd to logtext
 - [ ] Add debugmode where all the user's actions are logged
-- [ ] Fix logo, on all screens!
+- [x] Fix logo, on all screens!
 - [x] Remove whitespaces in usernames
 - [ ] Add register form
+- [ ] Add image size on_size to all the logo's
