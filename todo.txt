@@ -1,6 +1,8 @@
 Todo list:
 
 - [ ] Add option to remove a message in readscreen
+- [ ] Add option to reply to message in readscreen
+- [ ] Add text to display touser in sendscreen
 - [ ] Fix UI colors more
 - [ ] Search for UI bugs
 - [ ] Automaticly adding new keys after X ammount of msgs

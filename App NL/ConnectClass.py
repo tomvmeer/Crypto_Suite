@@ -9,7 +9,7 @@ __version__ = "1.0."
 import urllib2
 import CryptoSuite
 import socket
-RSAkeysize = 896
+RSAkeysize = 1028
 
 # Class for connecting and interacting with the server
 class Connections:
@@ -50,9 +50,9 @@ class Connections:
     def addkeys(self,username,password):
         link = ("http://connectit.asuscomm.com:5000/"+str(username)+"/"+str(password))
         response = (urllib2.urlopen(link.replace(" ","._."))).read()
-        if response == "3" or response == "1":
+        if response == "1":
             c = CryptoSuite.CryptoSuite(False)
-            id = c.construct(RSAkeysize, 5, False, "test")
+            id = c.construct(RSAkeysize, 5, False, str(password))
             datalist = []
             with open(("PublicKey " + str(id) + ".dat"), "r") as f:
                 for line in f:

@@ -62,7 +62,7 @@ class EncryptionApp(App):
     offline = False
     passwordBox = TextInput(password=True, multiline=False, size_hint_y=None, text="")
     usernameBox = TextInput(multiline=False, size_hint_y=None, text="")
-    scrolltimeout = 40
+    scrolltimeout = 38
     admin = True
 
     # Method for building the app
@@ -393,7 +393,7 @@ class decryption(Screen):
                 except IOError:
                     None
                 CC = CryptoSuite.CryptoSuite(False)
-                msg = (CC.decrypt(256,EncryptionApp.password,str(datalist[0])))
+                msg = (CC.decrypt(128,EncryptionApp.password,str(datalist[0])))
                 if msg != False:
                     self.msglist.append(str(msg))
                     self.layout.add_widget(MultiLineLabel(text='\n\n Onderwerp: '+str(msg).split("=-=-")[0]+'\n\n',
@@ -546,7 +546,7 @@ class sendscreen(Screen):
                 if str(CC.listIDs()) != "[]":
                     try:
                         ID = idlist[random.randint(0,len(idlist)-1)]
-                        CC.encrypt(256,(str(EncryptionApp.subject)+"=-=-"+str(self.message.text)+ " =-=-Verzonden door: "+str(EncryptionApp.username)),ID)
+                        CC.encrypt(128,(str(EncryptionApp.subject)+"=-=-"+str(self.message.text)+ " =-=-Verzonden door: "+str(EncryptionApp.username)),ID)
                         datalist = []
                         with open("Encrypted "+str(ID)+".dat","r") as f:
                             for line in f:
