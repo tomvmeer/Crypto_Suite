@@ -1,17 +1,17 @@
 Todo list:
 
-- [ ] Add option to remove a message in readscreen
-- [ ] Add option to reply to message in readscreen
-- [ ] Add text to display touser in sendscreen
-- [ ] Fix UI colors more
+- [x] Add option to remove a message in readscreen
+- [x] Add option to reply to message in readscreen
+- [x] Add text to display touser in sendscreen
+- [x] Fix UI colors more
 - [ ] Search for UI bugs
 - [ ] Automaticly adding new keys after X ammount of msgs
-- [ ] Connectclass, remove slashes and spaces from all traffic going to server to avoid crashes
-- [ ] Make choosing user to send message to more clear
-- [ ] Downgrade RSA encryption for more speed on slower phones
+- [?] Connectclass, remove slashes and spaces from all traffic going to server to avoid crashes
+- [x] Make choosing user to send message to more clear
+- [/] Downgrade RSA encryption for more speed on slower phones
 - [ ] Dynamicly output text in cmd to logtext
 - [ ] Add debugmode where all the user's actions are logged
 - [x] Fix logo, on all screens!
 - [x] Remove whitespaces in usernames
-- [ ] Add register form
-- [ ] Add image size on_size to all the logo's
+- [x] Add register form
+- [x] Add image size on_size to all the logo's

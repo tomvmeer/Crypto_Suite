@@ -9,7 +9,7 @@ __version__ = "1.0."
 import urllib2
 import CryptoSuite
 import socket
-RSAkeysize = 1028
+RSAkeysize = 1024
 
 # Class for connecting and interacting with the server
 class Connections:
@@ -31,21 +31,25 @@ class Connections:
         elif int(response) == 2: #user excists, password incorrect
             return False
         elif int(response) == 3:  # user doesnt excist, create new!
-            c = CryptoSuite.CryptoSuite(False)
-            id = c.construct(RSAkeysize, 5, False, password)
-            datalist = []
-            with open(("PublicKey " + str(id) + ".dat"), "r") as f:
-                for line in f:
-                    datalist.append(line.replace("\n", ""))
-            f.close()
-            link = (
-            "http://connectit.asuscomm.com:5000/" + str(username) + "/keys/" + str(id) + "/" + self.listToString(
-                datalist)).replace(" ", "._.")
-            response = (urllib2.urlopen(link.replace(" ", "._."))).read()
-            if response == "False":
-                return False
-            if response == "True":
-                return True
+            return 3
+
+    def register(self,username,password): #returns true if register was successful
+        c = CryptoSuite.CryptoSuite(False)
+        id = c.construct(RSAkeysize, 5, False, password)
+        datalist = []
+        with open(("PublicKey " + str(id) + ".dat"), "r") as f:
+            for line in f:
+                datalist.append(line.replace("\n", ""))
+        f.close()
+        link = (
+        "http://connectit.asuscomm.com:5000/" + str(username) + "/" + str(password) + "/keys/" + str(id) +
+        "/" + self.listToString(
+            datalist)).replace(" ", "._.")
+        response = (urllib2.urlopen(link.replace(" ", "._."))).read()
+        if response == "False":
+            return False
+        if response == "True":
+            return True
 
     def addkeys(self,username,password):
         link = ("http://connectit.asuscomm.com:5000/"+str(username)+"/"+str(password))
@@ -58,7 +62,8 @@ class Connections:
                 for line in f:
                     datalist.append(line.replace("\n", ""))
             f.close()
-            link = ("http://connectit.asuscomm.com:5000/" + str(username) + "/keys/" + str(id) + "/" + self.listToString(datalist)).replace(" ", "._.")
+            link = ("http://connectit.asuscomm.com:5000/" + str(username) + "/keys/" + str(id) + "/" +
+                    self.listToString(datalist)).replace(" ", "._.")
             response = (urllib2.urlopen(link.replace(" ", "._."))).read()
             if response == "False":
                 return False
@@ -106,7 +111,17 @@ class Connections:
             return idlist
 
     def deluser(self,user,password):
-        link = ("http://connectit.asuscomm.com:5000/" + str(user).replace("/","(*)") + "/keys/del/"+str(password).replace("/","(*)"))
+        link = ("http://connectit.asuscomm.com:5000/" + str(user).replace("/","(*)") + "/keys/del/"+
+                str(password).replace("/","(*)"))
+        response = (urllib2.urlopen(link.replace(" ", "._."))).read()
+        if response == "False":
+            return False
+        elif response == "True":
+            return True
+
+    def delmsg(self,user,password,msgID):
+        link = ("http://connectit.asuscomm.com:5000/" + str(user).replace("/","(*)") + "/msgs/del/"+
+                str(msgID).replace("/","(*)") + "/" + str(password).replace("/","(*)"))
         response = (urllib2.urlopen(link.replace(" ", "._."))).read()
         if response == "False":
             return False
@@ -114,7 +129,8 @@ class Connections:
             return True
 
     def addmsg(self,user,subject,msg):
-        link = ("http://connectit.asuscomm.com:5000/" + str(user).replace("/","(*)") + "/msgs/"+str(subject).replace("/","(*)")+"/"+str(msg).replace("/","(*)"))
+        link = ("http://connectit.asuscomm.com:5000/" + str(user).replace("/","(*)") +
+                "/msgs/"+str(subject).replace("/","(*)")+"/"+str(msg).replace("/","(*)"))
         response = (urllib2.urlopen(link.replace(" ", "._."))).read()
         if response == "False":
             return False

@@ -53,10 +53,6 @@ def index(name,password):
         f = open(str(name)+"/password.dat","r")
         f.close()
     except IOError:
-        os.mkdir(str(name))
-        f = open(str(name)+"/password.dat", "w")
-        f.write(password)
-        f.close()
         logger.info("Send %s to user in function %s ." % (str(3),str(sys._getframe().f_code.co_name)))
         return str(3)
     else:
@@ -85,6 +81,27 @@ def deletekeys(name,password):
                 return "True"
         except None:
             logger.info("Send %s to user in function %s ." % ((str(False), str(sys._getframe().f_code.co_name))))
+            return "False"
+
+
+@app.route('/<name>/msgs/del/<id>/<password>')
+def deletemsg(name, id, password):
+    if os.path.isdir(str(name)) == True:
+        try:
+            f = open(str(name) + "/password.dat")
+            if f.read() == str(password):
+                f.close()
+                try:
+                    os.remove(name+"/msgs/"+str(id)+".txt")
+                except:
+                    logger.info("Send %s to user in function %s ." % ((str(False),
+                                                                       str(sys._getframe().f_code.co_name))))
+                    return "False"
+                logger.info("Deleted msgs in function %s ." % str(sys._getframe().f_code.co_name))
+                return "True"
+        except:
+            logger.info(
+                "Send %s to user in function %s ." % ((str(False), str(sys._getframe().f_code.co_name))))
             return "False"
 
 
@@ -196,6 +213,35 @@ def newkeys(name,id,keys):
     logger.info("Send %s to user in function %s ." % (str(True), str(sys._getframe().f_code.co_name)))
     return ("True")
 
+@app.route('/<name>/<password>/keys/<id>/<keys>')
+def register(name,password,id,keys):
+    if os.path.isdir(name) == True:
+        logger.info("Send %s to user in function %s ." % (str(True), str(sys._getframe().f_code.co_name)))
+        return "False"
+    os.mkdir(str(name))
+    f = open(str(name) + "/password.dat", "w")
+    f.write(password)
+    f.close()
+    if os.path.isdir(str(name)) != True:
+        logger.info("Send %s to user in function %s ." % (str(False), str(sys._getframe().f_code.co_name)))
+        return "False"
+    try:
+        f = open((str(name) + "/PublicKey " + str(id) + ".dat"), "w")
+    except IOError:
+        logger.info("Send %s to user in function %s ." % (str(False), str(sys._getframe().f_code.co_name)))
+        return "False"
+    datalist = stringToList(str(keys).replace("._.", " "))
+    items = len(datalist)
+    p = 0
+    for i in datalist:
+        p = p + 1
+        if p == items:
+            f.write(i)
+        else:
+            f.write(i + "\n")
+    f.close()
+    logger.info("Send %s to user in function %s ." % (str(True), str(sys._getframe().f_code.co_name)))
+    return ("True")
 
 import logging
 logger = logging.getLogger()
