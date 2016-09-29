@@ -4,7 +4,7 @@
 """
 
 __author__ = "Tom van Meer"
-__version__ = "1.0."
+__version__ = "1.1"
 
 import urllib2
 import CryptoSuite

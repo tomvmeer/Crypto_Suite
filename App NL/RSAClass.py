@@ -74,7 +74,8 @@ class RSAKeys:
                         break
                 d = (self.mod_inverse(e, phiM))
                 if self.precisebits:
-                    if (len(bin(m)))-2 == self.bitsize and (len(bin(e)))-2 == self.bitsize and (len(bin(d)))-2 == self.bitsize:
+                    if (len(bin(m)))-2 == self.bitsize and (len(bin(e)))-2 == self.bitsize and \
+                                            (len(bin(d)))-2 == self.bitsize:
                         break
                 else:
                     break

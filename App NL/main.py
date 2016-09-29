@@ -5,7 +5,7 @@ CryptoSuite Class. Does some file handling with keys and saves private keys to d
 """
 
 __author__ = "Tom van Meer"
-__version__ = "3.1.1"
+__version__ = "3.2.0"
 
 # Importing Kivy classes and CryptoSuite class, also importing all modules:
 from kivy.app import App

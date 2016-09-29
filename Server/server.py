@@ -48,7 +48,8 @@ def home():
 
 @app.route('/<name>/<password>')
 def index(name,password):
-    logger.info("User %s contacted server with password %s in function %s." %(str(name),str(password),str(sys._getframe().f_code.co_name)))
+    logger.info("User %s contacted server with password %s in function %s." %(str(name),str(password),
+                                                                              str(sys._getframe().f_code.co_name)))
     try:
         f = open(str(name)+"/password.dat","r")
         f.close()

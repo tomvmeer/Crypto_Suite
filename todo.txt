@@ -15,3 +15,5 @@ Todo list:
 - [x] Remove whitespaces in usernames
 - [x] Add register form
 - [x] Add image size on_size to all the logo's
+- [ ] Tweak scroll
+- [ ] Add loading screen
