@@ -17,3 +17,4 @@ Todo list:
 - [x] Add image size on_size to all the logo's
 - [ ] Tweak scroll
 - [ ] Add loading screen
+- [ ] Fix not being able to close msg textbox
