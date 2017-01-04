@@ -5,7 +5,7 @@ CryptoSuite Class. Does some file handling with keys and saves private keys to d
 """
 
 __author__ = "Tom van Meer"
-__version__ = "3.2.0"
+__version__ = "3.2.1"
 
 # Importing Kivy classes and CryptoSuite class, also importing all modules:
 from kivy.app import App
@@ -53,10 +53,11 @@ class MultiLineLabel(Button):
 # Class app, used for building app
 class EncryptionApp(App):
     # Global variables:
-    debug = False
+    debug = True
     reply = False
     sm = ScreenManager()
     password = ""
+    enpassword = ""
     username = ""
     touser = ""
     subject = ""
@@ -101,8 +102,10 @@ class EncryptionApp(App):
     # Method for esc/back button
     def my_key_handler(self, window, keycode1, keycode2, text, modifiers):
         if keycode1 in [27, 1001]:
-            if self.sm.current == "loginscreen" or self.sm.current == "pre_loginscreen":
+            if self.sm.current == "loginscreen":
                 app.stop()
+            if self.sm.current == "pre_loginscreen":
+                self.sm.current = "loginscreen"
             if self.sm.current == "mainmenu":
                 self.passwordBox.text = ""
                 self.usernameBox.text = ""
@@ -127,6 +130,8 @@ class EncryptionApp(App):
 class pre_loginscreen(Screen):
     def __init__(self, **kwargs):
         super(pre_loginscreen, self).__init__(**kwargs)
+
+        self.bind(on_start=self.post_build_init)
 
         # Define layout:
         self.layout = GridLayout(cols=1, spacing=0, size_hint_y=None, pos=self.pos)
@@ -167,6 +172,22 @@ class pre_loginscreen(Screen):
         root.scroll_timeout = EncryptionApp.scrolltimeout
         root.add_widget(self.layout)
         self.add_widget(root)
+
+    def my_key_handler(self, window, keycode1, keycode2, text, modifiers):
+        if keycode1 in [27, 1001]:
+            if self.userbox.focus == True:
+                self.userbox.focus = False
+            if self.pasbox.focus == True:
+                self.pasbox.focus = False
+            if self.pasbox2.focus == True:
+                self.pasbox2.focus = False
+
+    def post_build_init(self, *args):
+        if platform() == 'android':
+            import android
+            android.map_key(android.KEYCODE_BACK, 1001)
+        win = Window
+        win.bind(on_keyboard=self.my_key_handler)
 
     def getsize(self, obj, event):
         x, y = self.size
@@ -234,13 +255,15 @@ class pre_loginscreen(Screen):
                     t_sha.update(self.pasbox.text)
                     passw = base64.urlsafe_b64encode(t_sha.digest())
                     C = ConnectClass.Connections()
-                    status = C.register(str(EncryptionApp.username), str(passw).replace("/", "++"))
+                    status = C.register(str(EncryptionApp.username), str(passw).replace("/", "++"),EncryptionApp.enpassword)
+
                     if status == True:
                         try:
                             self.layout.remove_widget(self.error)
                         except:
                             None
                         EncryptionApp.password = str(passw)
+                        EncryptionApp.enpassword = self.pasbox.text
                         self.userbox.text = ""
                         self.pasbox.text = ""
                         self.pasbox2.text = ""
@@ -553,7 +576,7 @@ class decryption(Screen):
                 except IOError:
                     None
                 CC = CryptoSuite.CryptoSuite(False)
-                msg = (CC.decrypt(128,EncryptionApp.password,str(datalist[0])))
+                msg = (CC.decrypt(128,EncryptionApp.enpassword,str(datalist[0])))
                 if msg != False:
                     msg = msg + "=-=-" + msgID[i]
                     self.msglist.append(str(msg))
@@ -655,6 +678,7 @@ class sendscreen(Screen):
         super(sendscreen, self).__init__(**kwargs)
 
         # Define layout:
+        self.bind(on_start=self.post_build_init)
         self.layout = GridLayout(cols=1, spacing=0, size_hint_y=None, pos=self.pos)
         self.layout.clear_widgets()
         self.image = Image(source="icon 2.png", size_hint_y=None,size=self.size)
@@ -684,7 +708,6 @@ class sendscreen(Screen):
         self.subjectlabel = (MultiLineLabel(text="\n\nBericht:\n",size_hint_y=None))
         self.layout.add_widget(self.subjectlabel)
         self.message = TextInput(multiline=False, size_hint_y=None,text="")
-        self.message.multiline = True
         self.layout.add_widget(self.message)
 
         # send button:
@@ -698,6 +721,20 @@ class sendscreen(Screen):
         root.scroll_timeout = EncryptionApp.scrolltimeout
         root.add_widget(self.layout)
         self.add_widget(root)
+
+    def my_key_handler(self, window, keycode1, keycode2, text, modifiers):
+        if keycode1 in [27, 1001]:
+            if self.message.focus == True:
+                self.message.focus = False
+            if self.subject.focus == True:
+                self.subject.focus = False
+
+    def post_build_init(self, *args):
+        if platform() == 'android':
+            import android
+            android.map_key(android.KEYCODE_BACK, 1001)
+        win = Window
+        win.bind(on_keyboard=self.my_key_handler)
 
     def getsize(self, obj, event):
         x, y = self.size
