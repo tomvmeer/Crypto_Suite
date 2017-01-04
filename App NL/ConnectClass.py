@@ -9,6 +9,7 @@ __version__ = "1.1"
 import urllib2
 import CryptoSuite
 import socket
+output = False
 RSAkeysize = 1024
 
 # Class for connecting and interacting with the server
@@ -33,9 +34,9 @@ class Connections:
         elif int(response) == 3:  # user doesnt excist, create new!
             return 3
 
-    def register(self,username,password): #returns true if register was successful
-        c = CryptoSuite.CryptoSuite(False)
-        id = c.construct(RSAkeysize, 5, False, password)
+    def register(self,username,password,enpassword): #returns true if register was successful
+        c = CryptoSuite.CryptoSuite(output)
+        id = c.construct(RSAkeysize, 5, False, enpassword)
         datalist = []
         with open(("PublicKey " + str(id) + ".dat"), "r") as f:
             for line in f:
@@ -51,12 +52,12 @@ class Connections:
         if response == "True":
             return True
 
-    def addkeys(self,username,password):
+    def addkeys(self,username,password,enpassword):
         link = ("http://connectit.asuscomm.com:5000/"+str(username)+"/"+str(password))
         response = (urllib2.urlopen(link.replace(" ","._."))).read()
         if response == "1":
-            c = CryptoSuite.CryptoSuite(False)
-            id = c.construct(RSAkeysize, 5, False, str(password))
+            c = CryptoSuite.CryptoSuite(output)
+            id = c.construct(RSAkeysize, 5, False, str(enpassword))
             datalist = []
             with open(("PublicKey " + str(id) + ".dat"), "r") as f:
                 for line in f:
